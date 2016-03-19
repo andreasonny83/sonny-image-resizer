@@ -43,10 +43,27 @@ app.get( '/status', function( req, res ) {
 
 app.get( '/image/:filename', function( req, res ) {
   var filename   = req.params.filename,
-      size      = req.query.s || 800,
-      quality   = req.query.q || 85;
+      size      = req.query.s || 600,
+      quality   = req.query.q || 80;
 
   gm( './public/images/' + filename )
+    .resize( size, size )
+    .quality( quality )
+    .toBuffer( 'JPG', function( err, buffer ) {
+      if ( ! err ) {
+        res.set( 'Content-Type', 'image/jpeg' );
+        res.send( buffer );
+      }
+    });
+});
+
+// Requesting a target image from anywhere on the web
+app.get( '/image', function( req, res ) {
+  var filename = req.query.target,
+    size     = req.query.s || 600,
+    quality  = req.query.q || 80;
+
+  gm( filename )
     .resize( size, size )
     .quality( quality )
     .toBuffer( 'JPG', function( err, buffer ) {
